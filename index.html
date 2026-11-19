@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jam Masjid Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   JAM MASJID — Masjid Al Hidayah Dagen
+   Tema: hijau–putih modern. Kanvas 1920x1080 diskalakan otomatis.
+   ========================================================= */
+:root{
+  --bg:#F3FAF6; --ink:#0A2A20; --muted:#5E7C70; --line:#D5EDE1;
+  --g900:#053B2C; --g800:#065F46; --g700:#047857; --g600:#059669; --g400:#34D399; --g100:#E2F5EB;
+  --gold:#D4AF37; --warn:#F59E0B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#04261C;cursor:default}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+
+/* dekorasi latar */
+.deco{position:absolute;inset:0;pointer-events:none;z-index:0}
+.deco::before{content:"";position:absolute;width:1100px;height:1100px;right:-380px;top:-520px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(52,211,153,.28),rgba(52,211,153,0));}
+.deco::after{content:"";position:absolute;width:900px;height:900px;left:-360px;bottom:-460px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(5,150,105,.16),rgba(5,150,105,0));}
+.pattern{position:absolute;inset:0;opacity:.07;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='none' stroke='%23065F46' stroke-width='2'><path d='M60 14 L74 46 L106 60 L74 74 L60 106 L46 74 L14 60 L46 46 Z'/><rect x='38' y='38' width='44' height='44' transform='rotate(45 60 60)'/><circle cx='60' cy='60' r='9'/></g></svg>");
+  background-size:120px 120px;mask-image:linear-gradient(180deg,#000 0%,transparent 55%);-webkit-mask-image:linear-gradient(180deg,#000 0%,transparent 55%)}
+#stage>*:not(.deco):not(.overlay){position:relative;z-index:1}
+
+/* header */
+.top{height:136px;padding:30px 64px 0;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:26px}
+.logo{width:92px;height:92px;border-radius:28px;background:linear-gradient(145deg,var(--g600),var(--g900));display:grid;place-items:center;
+  box-shadow:0 14px 30px -12px rgba(4,120,87,.7), inset 0 1px 0 rgba(255,255,255,.25)}
+.logo svg{width:58px;height:58px}
+.brand h1{font-size:46px;font-weight:800;letter-spacing:-1px;color:var(--g900);line-height:1.05}
+.brand p{font-size:22px;color:var(--muted);font-weight:500;margin-top:6px;display:flex;align-items:center;gap:10px}
+.sync{width:10px;height:10px;border-radius:50%;background:var(--g400);display:inline-block;box-shadow:0 0 0 4px rgba(52,211,153,.2)}
+.sync.off{background:#F59E0B;box-shadow:0 0 0 4px rgba(245,158,11,.2)}
+.dates{text-align:right}
+.dates .m{font-size:30px;font-weight:700;color:var(--g900)}
+.dates .h{font-size:26px;font-weight:600;color:var(--g700);margin-top:6px;display:inline-flex;align-items:center;gap:10px;
+  background:var(--g100);padding:6px 18px;border-radius:999px}
+
+/* tengah */
+.mid{flex:1;display:flex;gap:44px;padding:20px 64px 0;min-height:0}
+.clockbox{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:10px}
+.clock{display:flex;align-items:flex-start;line-height:.9;font-weight:800;letter-spacing:-10px;color:var(--g900)}
+.clock .big{font-size:290px;background:linear-gradient(180deg,var(--g800),var(--g900));-webkit-background-clip:text;background-clip:text;color:transparent}
+.clock .colon{font-size:250px;margin:0 6px;color:var(--g600);animation:blink 1s steps(1) infinite}
+.clock .sec{font-size:96px;letter-spacing:-2px;margin:34px 0 0 22px;color:var(--g600);font-weight:700}
+@keyframes blink{50%{opacity:.25}}
+.next{margin-top:26px;display:inline-flex;align-items:center;gap:22px;align-self:flex-start;
+  background:#fff;border:2px solid var(--line);border-radius:999px;padding:14px 16px 14px 34px;box-shadow:0 18px 40px -26px rgba(6,95,70,.55)}
+.next .lbl{font-size:28px;color:var(--muted);font-weight:600}
+.next b{font-size:34px;color:var(--g900);font-weight:800}
+.next .cd{font-size:34px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--g600),var(--g800));padding:8px 26px;border-radius:999px}
+.next.soon .cd{background:linear-gradient(135deg,#F59E0B,#D97706);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.live{margin-top:22px;align-self:flex-start;display:flex;align-items:center;gap:14px;font-size:26px;font-weight:700;color:var(--g900);
+  background:linear-gradient(90deg,rgba(52,211,153,.22),rgba(52,211,153,0));padding:12px 26px 12px 18px;border-radius:16px;border-left:6px solid var(--g600);max-width:1000px}
+.live .dot{width:14px;height:14px;border-radius:50%;background:#EF4444;box-shadow:0 0 0 0 rgba(239,68,68,.6);animation:ping 1.6s infinite;flex:none}
+.live .tag{font-size:18px;letter-spacing:2px;color:#B91C1C;font-weight:800}
+.live .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}100%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
+.hidden{display:none!important}
+
+/* panel info berputar */
+.panel{width:780px;background:rgba(255,255,255,.88);backdrop-filter:blur(8px);border:2px solid #fff;border-radius:40px;
+  box-shadow:0 30px 60px -34px rgba(6,95,70,.55);padding:34px 40px 30px;display:flex;flex-direction:column;min-height:0;margin-bottom:6px}
+.phead{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.ptitle{display:flex;align-items:center;gap:16px;font-size:34px;font-weight:800;color:var(--g900)}
+.picon{width:56px;height:56px;border-radius:18px;background:var(--g100);display:grid;place-items:center}
+.picon svg{width:32px;height:32px}
+.dots{display:flex;gap:8px}
+.dots i{width:12px;height:12px;border-radius:99px;background:var(--line);transition:all .4s}
+.dots i.on{width:36px;background:var(--g600)}
+.pbody{flex:1;min-height:0;overflow:hidden;animation:fadein .6s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pbar{height:6px;background:var(--g100);border-radius:9px;overflow:hidden;margin-top:18px}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--g400),var(--g700));border-radius:9px}
+
+.krow{display:flex;gap:22px;align-items:center;padding:16px 0;border-bottom:2px dashed var(--line)}
+.krow:last-child{border-bottom:0}
+.kday{width:128px;flex:none;text-align:center;background:var(--g100);border-radius:20px;padding:10px 6px}
+.kday .d{font-size:24px;font-weight:800;color:var(--g800)}
+.kday .s{font-size:17px;font-weight:600;color:var(--muted);margin-top:2px}
+.kday.today{background:linear-gradient(145deg,var(--g600),var(--g800))}
+.kday.today .d,.kday.today .s{color:#fff}
+.kinfo{min-width:0}
+.kinfo .t{font-size:27px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kinfo .u{font-size:22px;color:var(--muted);font-weight:500;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kinfo .u b{color:var(--g700);font-weight:700}
+
+.saldo{background:linear-gradient(140deg,var(--g700),var(--g900));color:#fff;border-radius:28px;padding:24px 30px;position:relative;overflow:hidden}
+.saldo::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.08)}
+.saldo .l{font-size:21px;opacity:.85;font-weight:600}
+.saldo .v{font-size:58px;font-weight:800;letter-spacing:-1px;margin-top:4px}
+.flow{display:flex;gap:16px;margin-top:16px}
+.flow div{flex:1;background:var(--g100);border-radius:22px;padding:14px 20px}
+.flow .l{font-size:18px;color:var(--muted);font-weight:600}
+.flow .v{font-size:30px;font-weight:800;margin-top:2px}
+.flow .in .v{color:var(--g700)} .flow .out .v{color:#B45309}
+.rek{margin-top:16px;font-size:21px;color:var(--ink);font-weight:600;display:flex;gap:12px;align-items:center;
+  border:2px dashed var(--g400);border-radius:18px;padding:12px 18px;background:#fff}
+.rek span{color:var(--muted);font-weight:500}
+
+.ev{border-radius:26px;padding:22px 26px;background:var(--g100);margin-bottom:14px}
+.ev.on{background:linear-gradient(140deg,var(--g700),var(--g900));color:#fff}
+.ev .b{display:inline-flex;align-items:center;gap:8px;font-size:16px;font-weight:800;letter-spacing:1.5px;padding:5px 14px;border-radius:999px;background:#fff;color:var(--g800)}
+.ev.on .b{background:#EF4444;color:#fff}
+.ev .t{font-size:32px;font-weight:800;margin-top:12px;line-height:1.2}
+.ev .w{font-size:21px;margin-top:8px;opacity:.85;font-weight:500}
+.ev .k{font-size:21px;margin-top:8px;opacity:.9;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty{font-size:24px;color:var(--muted);padding:30px 0}
+
+/* jadwal sholat */
+.prayers{height:212px;display:flex;gap:18px;padding:22px 64px 22px}
+.pc{flex:1;border-radius:30px;background:#fff;border:2px solid var(--line);display:flex;flex-direction:column;justify-content:center;align-items:center;
+  transition:all .5s;position:relative;overflow:hidden}
+.pc .n{font-size:26px;font-weight:700;color:var(--muted);letter-spacing:.5px}
+.pc .t{font-size:62px;font-weight:800;color:var(--g900);letter-spacing:-2px;line-height:1.1}
+.pc.minor{background:transparent;border-style:dashed}
+.pc.minor .t{font-size:48px;color:var(--g700)}
+.pc.past .t{color:#9BB5AA}
+.pc.active{background:linear-gradient(150deg,var(--g600),var(--g900));border-color:transparent;transform:translateY(-10px);
+  box-shadow:0 24px 40px -18px rgba(4,120,87,.8)}
+.pc.active .n{color:#D1FAE5}.pc.active .t{color:#fff}
+.pc.active::after{content:"BERIKUTNYA";position:absolute;top:12px;font-size:13px;letter-spacing:2.5px;font-weight:800;color:var(--g900);background:var(--g400);padding:3px 12px;border-radius:999px}
+.pc.active .n{margin-top:16px}
+
+/* running text */
+.ticker{height:76px;background:var(--g900);display:flex;align-items:center;overflow:hidden}
+.tlabel{height:100%;display:flex;align-items:center;gap:12px;padding:0 34px 0 64px;background:var(--g600);color:#fff;font-weight:800;font-size:24px;letter-spacing:2px;
+  clip-path:polygon(0 0,100% 0,calc(100% - 26px) 100%,0 100%);flex:none}
+.tview{flex:1;overflow:hidden;height:100%;display:flex;align-items:center}
+.track{display:inline-flex;white-space:nowrap;will-change:transform;animation:scroll linear infinite}
+.track span{font-size:28px;color:#E6FFF4;font-weight:500;padding-right:28px}
+.track span.sep{color:var(--g400);padding-right:28px}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* overlay adzan / iqomah / sholat */
+.overlay{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;
+  background:radial-gradient(circle at 50% 30%,#0A7A57 0%,#053B2C 60%,#022017 100%)}
+.overlay .pattern{opacity:.08;mask-image:none;-webkit-mask-image:none;filter:invert(1)}
+.overlay>*{position:relative}
+.ov-k{font-size:40px;letter-spacing:10px;font-weight:700;color:var(--g400)}
+.ov-t{font-size:150px;font-weight:800;letter-spacing:-3px;line-height:1.05;margin-top:14px}
+.ov-c{font-size:280px;font-weight:800;letter-spacing:-8px;line-height:1;margin-top:10px}
+.ov-s{font-size:40px;font-weight:500;opacity:.9;margin-top:30px;max-width:1500px;line-height:1.4}
+.ov-clock{position:absolute;top:50px;right:70px;font-size:56px;font-weight:800;opacity:.85}
+.ov-name{position:absolute;top:58px;left:70px;font-size:34px;font-weight:700;opacity:.8}
+.overlay.dark{background:#000}
+.overlay.dark .ov-t{font-size:110px;color:#9CA3AF}
+.overlay.dark .ov-s{color:#6B7280}
+.overlay.dark .ov-clock,.overlay.dark .ov-name{color:#4B5563}
+.overlay.dark .pattern{display:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="deco"><div class="pattern"></div></div>
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 64 64" fill="none"><path d="M32 6c1.2 3.2 3.6 5 6.4 5.4-2.6 1-4.2 3.2-4.4 6-1-2.2-2.6-3.4-4.8-3.6 1.8-1.6 2.8-4.4 2.8-7.8z" fill="#A7F3D0"/><path d="M14 54V36c0-9.9 8.1-18 18-18s18 8.1 18 18v18" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M6 54V30M58 54V30M4 54h56" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M26 54V44a6 6 0 0 1 12 0v10" stroke="#A7F3D0" stroke-width="4"/></svg>
+      </div>
+      <div>
+        <h1 id="nama">Masjid Al Hidayah</h1>
+        <p><span class="sync" id="sync"></span><span id="alamat"></span></p>
+      </div>
+    </div>
+    <div class="dates">
+      <div class="m" id="tglM"></div>
+      <div class="h" id="tglH"></div>
+    </div>
+  </header>
+
+  <main class="mid">
+    <section class="clockbox">
+      <div class="clock num"><span class="big" id="hh">00</span><span class="colon">:</span><span class="big" id="mm">00</span><span class="sec" id="ss">00</span></div>
+      <div class="next" id="next"><span class="lbl">Menuju</span><b id="nextName">—</b><span class="cd num" id="nextCd">00:00:00</span></div>
+      <div class="live hidden" id="live"><span class="dot"></span><span class="tag">BERLANGSUNG</span><span class="t" id="liveText"></span></div>
+    </section>
+
+    <section class="panel">
+      <div class="phead">
+        <div class="ptitle"><div class="picon" id="pIcon"></div><span id="pTitle"></span></div>
+        <div class="dots" id="dots"></div>
+      </div>
+      <div class="pbody" id="pbody"></div>
+      <div class="pbar"><i id="pbar"></i></div>
+    </section>
+  </main>
+
+  <section class="prayers" id="prayers"></section>
+
+  <footer class="ticker">
+    <div class="tlabel">✦ INFO</div>
+    <div class="tview"><div class="track" id="track"></div></div>
+  </footer>
+
+  <div class="overlay hidden" id="overlay">
+    <div class="pattern"></div>
+    <div class="ov-name" id="ovName"></div>
+    <div class="ov-clock num" id="ovClock"></div>
+    <div class="ov-k" id="ovK"></div>
+    <div class="ov-t" id="ovT"></div>
+    <div class="ov-c num hidden" id="ovC"></div>
+    <div class="ov-s" id="ovS"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   KONFIGURASI
+   API_URL : URL Web App (/exec) dari Apps Script PUSAT.
+   Masjid dipilih lewat alamat halaman:  index.html?m=<kode>&k=<kunci>
+   (MASJID/KUNCI di bawah hanya cadangan bila alamat tidak memuat ?m=&k=)
+   Tanpa API_URL dan tanpa ?m= → tampil data contoh (mode demo).
+   ========================================================= */
+var CONFIG = {
+  API_URL: '',
+  MASJID: '',
+  KUNCI: '',
+  REFRESH_MENIT: 5
+};
+var QS = {};
+location.search.replace(/^\?/, '').split('&').forEach(function(p){ if (!p) return; var i = p.indexOf('='); QS[decodeURIComponent(i < 0 ? p : p.slice(0, i))] = decodeURIComponent(i < 0 ? '' : p.slice(i+1)); });
+var SLUG = String(QS.m || CONFIG.MASJID || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+var KEY = String(QS.k || CONFIG.KUNCI || '').replace(/[^A-Za-z0-9]/g, '');
+var LIVE = !!(CONFIG.API_URL && SLUG && KEY);
+var CACHE_KEY = 'jamMasjid_' + (SLUG || 'demo');
+var ERRMSG = '';
+
+/* Nilai bawaan — bisa ditimpa dari tab "Pengaturan" di Google Sheet */
+var DEFAULTS = {
+  nama_masjid: 'Masjid Al Hidayah',
+  alamat: 'Dagen, Kadisoro, Pandak, Bantul',   // hanya untuk mode demo
+  lat: -7.9200, lng: 110.3000, timezone: 7,
+  sudut_subuh: 20, sudut_isya: 18,          // standar Kemenag RI
+  ihtiyat: 2,                                // menit kehati-hatian
+  imsak_menit: 10,
+  koreksi_subuh: 0, koreksi_terbit: 0, koreksi_dzuhur: 0, koreksi_ashar: 0, koreksi_maghrib: 0, koreksi_isya: 0,
+  iqomah_subuh: 10, iqomah_dzuhur: 8, iqomah_ashar: 8, iqomah_maghrib: 7, iqomah_isya: 8,
+  durasi_adzan: 4, durasi_sholat: 12, durasi_jumat: 45,
+  rotasi_detik: 15, koreksi_hijriah: 0, kecepatan_teks: 110,
+  saldo_awal: 0,
+  rekening_infaq: 'BSI 7xxx-xxx-xxx a.n. Takmir Masjid Al Hidayah',
+  teks_iqomah: 'Luruskan dan rapatkan shaf. Mohon matikan atau senyapkan HP.',
+  teks_sholat: 'Sholat sedang berlangsung'
+};
+
+/* ---------- util ---------- */
+var $ = function(id){ return document.getElementById(id); };
+var pad = function(n){ return (n < 10 ? '0' : '') + n; };
+var HARI = ['Ahad','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+var BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+var BLN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function rupiah(n){ var neg = n < 0; n = Math.abs(Math.round(n)); return (neg?'−':'') + 'Rp ' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+function money(v){ if (typeof v === 'number') return v; var s = String(v||'').replace(/[^\d\-]/g,''); return parseInt(s,10) || 0; }
+function numv(v, d){ if (typeof v === 'number') return v; var x = parseFloat(String(v).replace(',', '.')); return isNaN(x) ? d : x; }
+function isAktif(v){ return v === undefined || v === '' || v === null || v === true || /^(y|ya|yes|true|1|aktif)$/i.test(String(v).trim()); }
+function hm(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function dayStart(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function pDate(v){
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  var s = String(v).trim(), m;
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2})[:.](\d{2}))?/);
+  if (m) return mk(+m[1], m[2]-1, +m[3], m[4], m[5]);
+  m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})(?:\s+(\d{1,2})[:.](\d{2}))?/);
+  if (m) return mk(+m[3], m[2]-1, +m[1], m[4], m[5]);
+  return null;
+  function mk(y,mo,d,h,mi){ var x = new Date(y,mo,d,+(h||0),+(mi||0)); x._noTime = (h === undefined); return x; }
+}
+
+/* ---------- waktu sholat (algoritma astronomis, parameter Kemenag) ---------- */
+var DR = Math.PI/180;
+function sin(d){return Math.sin(d*DR)} function cos(d){return Math.cos(d*DR)} function tan(d){return Math.tan(d*DR)}
+function asin(x){return Math.asin(x)/DR} function acos(x){return Math.acos(x)/DR} function atan2(y,x){return Math.atan2(y,x)/DR}
+function acot(x){return Math.atan(1/x)/DR}
+function fix(a,b){ a = a - b*Math.floor(a/b); return a < 0 ? a+b : a; }
+function julian(y,m,d){ if (m <= 2){ y -= 1; m += 12; } var A = Math.floor(y/100), B = 2 - A + Math.floor(A/4);
+  return Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + d + B - 1524.5; }
+function sunPos(jd){
+  var D = jd - 2451545.0, g = fix(357.529 + 0.98560028*D, 360), q = fix(280.459 + 0.98564736*D, 360);
+  var L = fix(q + 1.915*sin(g) + 0.020*sin(2*g), 360), e = 23.439 - 0.00000036*D;
+  var RA = atan2(cos(e)*sin(L), cos(L))/15;
+  return { decl: asin(sin(e)*sin(L)), eqt: q/15 - fix(RA, 24) };
+}
+function calcTimes(date, S){
+  var lat = S.lat, lng = S.lng, tz = S.timezone;
+  var jd = julian(date.getFullYear(), date.getMonth()+1, date.getDate()) - lng/(15*24);
+  function mid(t){ return fix(12 - sunPos(jd + t).eqt, 24); }
+  function angT(a, t, ccw){ var dc = sunPos(jd + t).decl, n = mid(t);
+    var T = acos((-sin(a) - sin(dc)*sin(lat)) / (cos(dc)*cos(lat))) / 15; return n + (ccw ? -T : T); }
+  function asrT(f, t){ var dc = sunPos(jd + t).decl; return angT(-acot(f + tan(Math.abs(lat - dc))), t); }
+  var t = {subuh:5, terbit:6, dzuhur:12, ashar:13, maghrib:18, isya:18};
+  for (var i = 0; i < 2; i++){
+    t = { subuh: angT(S.sudut_subuh, t.subuh/24, true), terbit: angT(0.833, t.terbit/24, true),
+          dzuhur: mid(t.dzuhur/24), ashar: asrT(1, t.ashar/24),
+          maghrib: angT(0.833, t.maghrib/24), isya: angT(S.sudut_isya, t.isya/24) };
+  }
+  var base = dayStart(date).getTime(), out = {};
+  Object.keys(t).forEach(function(k){
+    var h = t[k] + tz - lng/15;
+    var min = h*60 + (k === 'terbit' ? -S.ihtiyat : S.ihtiyat) + numv(S['koreksi_'+k], 0);
+    min = k === 'terbit' ? Math.floor(min) : Math.ceil(min);
+    out[k] = base + min*60000;
+  });
+  out.imsak = out.subuh - S.imsak_menit*60000;
+  return out;
+}
+
+/* ---------- data ---------- */
+var S = Object.assign({}, DEFAULTS), DATA = null, timesCache = {};
+function getTimes(d){ var k = d.toDateString(); if (!timesCache[k]) timesCache[k] = calcTimes(d, S); return timesCache[k]; }
+
+function demoData(){
+  var n = new Date(), f = function(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
+  var add = function(days){ var d = new Date(n); d.setDate(d.getDate()+days); return d; };
+  return {
+    Pengaturan: [],
+    Kajian: [
+      {hari:'Ahad', tanggal:'', jam:'05:30', judul:'Kajian Ahad Pagi — Fiqih Ibadah', pemateri:'Ust. Ahmad Fauzi', aktif:'Y'},
+      {hari:'Senin', tanggal:'', jam:"Ba'da Maghrib", judul:'Tahsin Al-Qur\'an Bapak-bapak', pemateri:'Ust. Hanif', aktif:'Y'},
+      {hari:'Kamis', tanggal:'', jam:"Ba'da Maghrib", judul:'Yasinan & Tahlil Malam Jumat', pemateri:'Takmir', aktif:'Y'},
+      {hari:'Rabu', tanggal:'', jam:"Ba'da Isya", judul:'Kajian Kitab Riyadhus Shalihin', pemateri:'Ust. Muhammad Ridwan', aktif:'Y'},
+      {hari:'', tanggal:f(add(9)), jam:'08:00', judul:'Tabligh Akbar Peringatan Isra Mi\'raj', pemateri:'KH. Abdullah Syukri', aktif:'Y'}
+    ],
+    Infaq: [
+      {tanggal:f(add(-20)), keterangan:'Saldo bulan lalu', pemasukan:'18250000', pengeluaran:''},
+      {tanggal:f(add(-6)), keterangan:'Kotak amal Jumat', pemasukan:'2415000', pengeluaran:''},
+      {tanggal:f(add(-4)), keterangan:'Listrik & air', pemasukan:'', pengeluaran:'685000'},
+      {tanggal:f(add(-2)), keterangan:'Infaq hamba Allah', pemasukan:'1000000', pengeluaran:''},
+      {tanggal:f(add(-1)), keterangan:'Honor kebersihan', pemasukan:'', pengeluaran:'500000'}
+    ],
+    Event: [
+      {judul:'Penggalangan Dana Renovasi Tempat Wudhu', mulai:f(add(-3)), selesai:f(add(10)), lokasi:'Serambi masjid', keterangan:'Target Rp 45.000.000 — infaq dapat diserahkan ke takmir atau via rekening masjid.', aktif:'Y'},
+      {judul:'Santunan Anak Yatim & Dhuafa', mulai:f(add(5))+' 08:00', selesai:f(add(5))+' 11:00', lokasi:'Aula masjid', keterangan:'Pendaftaran penerima melalui ketua RT masing-masing.', aktif:'Y'}
+    ],
+    RunningText: [
+      {teks:'Selamat datang di Masjid Al Hidayah Dagen, Kadisoro, Pandak, Bantul', aktif:'Y'},
+      {teks:'Mohon matikan atau senyapkan HP selama berada di dalam masjid', aktif:'Y'},
+      {teks:'Jagalah kebersihan masjid — alas kaki diletakkan di rak yang tersedia', aktif:'Y'},
+      {teks:'"Sebaik-baik manusia adalah yang paling bermanfaat bagi manusia lain" (HR. Ahmad)', aktif:'Y'}
+    ]
+  };
+}
+
+function lowerKeys(rows){ return (rows || []).map(function(r){ var o = {}; Object.keys(r).forEach(function(k){ o[String(k).trim().toLowerCase()] = r[k]; }); return o; }); }
+
+function apply(j){
+  DATA = {};
+  ['Pengaturan','Kajian','Infaq','Event','RunningText'].forEach(function(t){ DATA[t] = lowerKeys(j[t]); });
+  DATA.ringkasan = j.InfaqRingkasan || null;
+  S = Object.assign({}, DEFAULTS);
+  DATA.Pengaturan.forEach(function(r){
+    var k = String(r.kunci || '').trim().toLowerCase(); if (!k) return;
+    var v = r.nilai; S[k] = (typeof DEFAULTS[k] === 'number') ? numv(v, DEFAULTS[k]) : String(v == null ? '' : v);
+  });
+  timesCache = {};
+  $('nama').textContent = S.nama_masjid;
+  $('alamat').textContent = S.alamat;
+  $('ovName').textContent = S.nama_masjid;
+  buildTicker(); buildSlides(); renderPrayers(now()); renderSlide();
+}
+
+function loadData(){
+  if (!LIVE){ if (!DATA && !ERRMSG) apply(demoData()); return; }
+  var url = CONFIG.API_URL + (CONFIG.API_URL.indexOf('?') > -1 ? '&' : '?') +
+            'm=' + encodeURIComponent(SLUG) + '&k=' + encodeURIComponent(KEY) + '&t=' + Date.now();
+  fetch(url).then(function(r){ return r.json(); }).then(function(j){
+    if (j && j.error){
+      $('sync').className = 'sync off';
+      if (!DATA) ERRMSG = j.error;          // tampilkan pesan hanya bila belum pernah ada data
+      return;
+    }
+    ERRMSG = '';
+    apply(j); $('sync').className = 'sync';
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(j)); } catch(e){}
+  }).catch(function(){
+    $('sync').className = 'sync off';
+    if (!DATA) ERRMSG = 'Tidak bisa terhubung ke server. Periksa koneksi internet.';
+  });
+}
+
+/* ---------- jam & mode simulasi ---------- */
+var OFFSET = 0;
+function now(){ return new Date(Date.now() + OFFSET); }
+
+var LIST = [['imsak','Imsak'],['subuh','Subuh'],['terbit','Terbit'],['dzuhur','Dzuhur'],['ashar','Ashar'],['maghrib','Maghrib'],['isya','Isya']];
+var WAJIB = ['subuh','dzuhur','ashar','maghrib','isya'];
+function label(k, d){ if (k === 'dzuhur' && d.getDay() === 5) return "Jum'at"; for (var i=0;i<LIST.length;i++) if (LIST[i][0]===k) return LIST[i][1]; return k; }
+
+function nextPrayer(n){
+  var T = getTimes(n);
+  for (var i = 0; i < WAJIB.length; i++) if (T[WAJIB[i]] > n.getTime()) return {k: WAJIB[i], t: T[WAJIB[i]], d: n};
+  var tm = new Date(n); tm.setDate(tm.getDate()+1);
+  return {k:'subuh', t: getTimes(tm).subuh, d: tm};
+}
+
+function renderPrayers(n){
+  var T = getTimes(n), nx = nextPrayer(n), html = '';
+  LIST.forEach(function(p){
+    var k = p[0], cls = 'pc';
+    if (k === 'imsak' || k === 'terbit') cls += ' minor';
+    var tomorrow = nx.d.toDateString() !== n.toDateString();
+    if (nx.k === k) cls += ' active';
+    else if (T[k] <= n.getTime()) cls += ' past';
+    var tt = (nx.k === k && tomorrow) ? nx.t : T[k];
+    html += '<div class="'+cls+'"><div class="n">'+label(k,n)+'</div><div class="t num">'+hm(new Date(tt))+'</div></div>';
+  });
+  $('prayers').innerHTML = html;
+}
+
+function phase(n){
+  var T = getTimes(n), t = n.getTime(), jumat = n.getDay() === 5;
+  for (var i = 0; i < WAJIB.length; i++){
+    var k = WAJIB[i], a = S.durasi_adzan*60000, isJ = jumat && k === 'dzuhur';
+    var iq = isJ ? 0 : numv(S['iqomah_'+k], 8)*60000, sh = (isJ ? S.durasi_jumat : S.durasi_sholat)*60000, d = t - T[k];
+    if (d >= 0 && d < a) return {mode:'adzan', k:k, end:T[k]+a};
+    if (d >= a && d < a+iq) return {mode:'iqomah', k:k, end:T[k]+a+iq};
+    if (d >= a+iq && d < a+iq+sh) return {mode: isJ ? 'jumat' : 'sholat', k:k};
+  }
+  return null;
+}
+
+function hijri(d){
+  try {
+    var x = new Date(d.getTime() + S.koreksi_hijriah*86400000);
+    var s = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', {day:'numeric', month:'long', year:'numeric'}).format(x);
+    return s.replace(/\s*(H|AH|SH)\.?$/,'') + ' H';
+  } catch(e){ return ''; }
+}
+
+var lastMin = -1, lastDay = '';
+function tick(){
+  var n = now();
+  $('hh').textContent = pad(n.getHours()); $('mm').textContent = pad(n.getMinutes()); $('ss').textContent = pad(n.getSeconds());
+  if (n.toDateString() !== lastDay){
+    lastDay = n.toDateString();
+    $('tglM').textContent = HARI[n.getDay()] + ', ' + n.getDate() + ' ' + BULAN[n.getMonth()] + ' ' + n.getFullYear();
+    $('tglH').textContent = '☪ ' + hijri(n);
+    buildSlides();
+  }
+  if (n.getMinutes() !== lastMin){ lastMin = n.getMinutes(); renderPrayers(n); updateLive(n); }
+
+  var nx = nextPrayer(n), left = Math.max(0, Math.floor((nx.t - n.getTime())/1000));
+  $('nextName').textContent = label(nx.k, nx.d) + ' · ' + hm(new Date(nx.t));
+  $('nextCd').textContent = '−' + pad(Math.floor(left/3600)) + ':' + pad(Math.floor(left%3600/60)) + ':' + pad(left%60);
+  $('next').className = 'next' + (left <= 600 ? ' soon' : '');
+
+  var ph = phase(n), ov = $('overlay');
+  if (ERRMSG && !DATA){
+    ov.className = 'overlay'; $('ovClock').textContent = hm(n); $('ovName').textContent = SLUG;
+    $('ovK').textContent = 'JAM MASJID DIGITAL'; $('ovT').textContent = 'Belum terhubung'; $('ovC').classList.add('hidden');
+    $('ovS').textContent = ERRMSG; return;
+  }
+  if (!ph){ ov.classList.add('hidden'); return; }
+  ov.classList.remove('hidden');
+  $('ovClock').textContent = hm(n);
+  var nm = label(ph.k, n).toUpperCase();
+  if (ph.mode === 'adzan'){
+    ov.className = 'overlay'; $('ovK').textContent = 'WAKTU SHOLAT';
+    $('ovT').textContent = 'Adzan ' + label(ph.k, n); $('ovC').classList.add('hidden');
+    $('ovS').textContent = 'Mari sejenak hentikan aktivitas dan jawablah seruan adzan';
+  } else if (ph.mode === 'iqomah'){
+    var r = Math.max(0, Math.ceil((ph.end - n.getTime())/1000));
+    ov.className = 'overlay'; $('ovK').textContent = 'MENUJU IQOMAH ' + nm;
+    $('ovT').textContent = ''; $('ovC').classList.remove('hidden');
+    $('ovC').textContent = pad(Math.floor(r/60)) + ':' + pad(r%60);
+    $('ovS').textContent = S.teks_iqomah;
+  } else if (ph.mode === 'jumat'){
+    ov.className = 'overlay dark'; $('ovK').textContent = '';
+    $('ovT').textContent = "Khutbah Jum'at"; $('ovC').classList.add('hidden');
+    $('ovS').textContent = 'Diam dan dengarkan khutbah. Barang siapa berbicara, maka sia-sia Jum\'atnya.';
+  } else {
+    ov.className = 'overlay dark'; $('ovK').textContent = '';
+    $('ovT').textContent = S.teks_sholat; $('ovC').classList.add('hidden');
+    $('ovS').textContent = 'Sholat ' + label(ph.k, n);
+  }
+}
+
+/* ---------- event berlangsung ---------- */
+function events(n){
+  var t = n.getTime(), on = [], up = [];
+  (DATA ? DATA.Event : []).forEach(function(e){
+    if (!isAktif(e.aktif) || !e.judul) return;
+    var a = pDate(e.mulai), b = pDate(e.selesai) || (a ? new Date(a) : null);
+    if (!a) return;
+    if (b && b._noTime) b = new Date(b.getFullYear(), b.getMonth(), b.getDate(), 23, 59);
+    else if (b && b.getTime() === a.getTime() && a._noTime) b = new Date(a.getFullYear(), a.getMonth(), a.getDate(), 23, 59);
+    var o = {e:e, a:a, b:b};
+    if (a.getTime() <= t && t <= b.getTime()) on.push(o);
+    else if (a.getTime() > t && a.getTime() - t < 21*86400000) up.push(o);
+  });
+  up.sort(function(x,y){ return x.a - y.a; });
+  return {on:on, up:up};
+}
+function updateLive(n){
+  var ev = events(n);
+  if (ev.on.length){ $('live').classList.remove('hidden'); $('liveText').textContent = ev.on.map(function(o){ return o.e.judul; }).join('  •  '); }
+  else $('live').classList.add('hidden');
+}
+function fmtRange(a, b){
+  var f = function(d){ return d.getDate() + ' ' + BLN[d.getMonth()]; };
+  var s = HARI[a.getDay()] + ', ' + f(a) + (a._noTime ? '' : ' · ' + hm(a));
+  if (b && b.toDateString() !== a.toDateString()) s += ' – ' + f(b);
+  else if (b && !a._noTime && hm(b) !== '23:59' && hm(b) !== hm(a)) s += '–' + hm(b);
+  return s;
+}
+
+/* ---------- panel berputar ---------- */
+var ICONS = {
+  kajian:'<svg viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3H11v17H4.5A2.5 2.5 0 0 0 2 22.5z"/><path d="M22 5.5A2.5 2.5 0 0 0 19.5 3H13v17h6.5a2.5 2.5 0 0 1 2.5 2.5z"/></svg>',
+  infaq:'<svg viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 15 6 6"/><circle cx="16" cy="6" r="3"/></svg>',
+  event:'<svg viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>'
+};
+var SLIDES = [], sIdx = 0, sTimer = null;
+
+function kajianList(n){
+  var today = dayStart(n), out = [];
+  (DATA ? DATA.Kajian : []).forEach(function(k){
+    if (!isAktif(k.aktif) || !k.judul) return;
+    var d = null, tgl = pDate(k.tanggal);
+    if (tgl){ d = dayStart(tgl); if (d < today) return; }
+    else if (k.hari){
+      var h = String(k.hari).toLowerCase().replace(/[^a-z]/g,''); if (h === 'minggu') h = 'ahad';
+      var idx = HARI.map(function(x){ return x.toLowerCase(); }).indexOf(h); if (idx < 0) return;
+      d = new Date(today); d.setDate(d.getDate() + ((idx - today.getDay() + 7) % 7));
+    } else return;
+    out.push({k:k, d:d});
+  });
+  out.sort(function(a,b){ return a.d - b.d; });
+  return out.slice(0, 4);
+}
+
+function buildSlides(){
+  if (!DATA) return;
+  SLIDES = ['kajian', 'infaq'];
+  var ev = events(now()); if (ev.on.length || ev.up.length) SLIDES.push('event');
+  if (sIdx >= SLIDES.length) sIdx = 0;
+}
+
+function renderSlide(){
+  if (!SLIDES.length) return;
+  var n = now(), key = SLIDES[sIdx], h = '', title = '';
+  if (key === 'kajian'){
+    title = 'Jadwal Kajian';
+    var L = kajianList(n), today = dayStart(n).getTime();
+    if (!L.length) h = '<div class="empty">Belum ada jadwal kajian.</div>';
+    L.forEach(function(o){
+      var diff = Math.round((o.d - today)/86400000);
+      var lbl = diff === 0 ? 'Hari ini' : diff === 1 ? 'Besok' : o.d.getDate() + ' ' + BLN[o.d.getMonth()];
+      h += '<div class="krow"><div class="kday'+(diff===0?' today':'')+'"><div class="d">'+HARI[o.d.getDay()]+'</div><div class="s">'+lbl+'</div></div>' +
+           '<div class="kinfo"><div class="t">'+esc(o.k.judul)+'</div><div class="u"><b>'+esc(o.k.jam)+'</b> · '+esc(o.k.pemateri)+'</div></div></div>';
+    });
+  } else if (key === 'infaq'){
+    title = 'Laporan Infaq';
+    var saldo = numv(S.saldo_awal, 0), mi = 0, mo = 0, m = n.getMonth(), y = n.getFullYear();
+    if (DATA.ringkasan){ saldo = money(DATA.ringkasan.saldo); mi = money(DATA.ringkasan.masuk_bulan); mo = money(DATA.ringkasan.keluar_bulan); }
+    else (DATA.Infaq || []).forEach(function(r){
+      var i = money(r.pemasukan), o = money(r.pengeluaran), d = pDate(r.tanggal);
+      saldo += i - o;
+      if (d && d.getMonth() === m && d.getFullYear() === y){ mi += i; mo += o; }
+    });
+    h = '<div class="saldo"><div class="l">Saldo Kas Masjid</div><div class="v num">'+rupiah(saldo)+'</div></div>' +
+        '<div class="flow"><div class="in"><div class="l">▲ Pemasukan '+BULAN[m]+'</div><div class="v num">'+rupiah(mi)+'</div></div>' +
+        '<div class="out"><div class="l">▼ Pengeluaran '+BULAN[m]+'</div><div class="v num">'+rupiah(mo)+'</div></div></div>' +
+        (S.rekening_infaq ? '<div class="rek">🏦 <span>Infaq via</span> '+esc(S.rekening_infaq)+'</div>' : '');
+  } else {
+    title = 'Kegiatan Masjid';
+    var ev = events(n), items = ev.on.map(function(o){ o.on = 1; return o; }).concat(ev.up).slice(0, 2);
+    items.forEach(function(o){
+      h += '<div class="ev'+(o.on?' on':'')+'"><span class="b">'+(o.on?'● SEDANG BERLANGSUNG':'AKAN DATANG')+'</span>' +
+           '<div class="t">'+esc(o.e.judul)+'</div><div class="w">📅 '+fmtRange(o.a, o.b)+(o.e.lokasi?' &nbsp;📍 '+esc(o.e.lokasi):'')+'</div>' +
+           (o.e.keterangan && items.length < 2 ? '<div class="k">'+esc(o.e.keterangan)+'</div>' : '') + '</div>';
+    });
+  }
+  $('pTitle').textContent = title; $('pIcon').innerHTML = ICONS[key];
+  var b = $('pbody'); b.innerHTML = h; b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+  $('dots').innerHTML = SLIDES.map(function(_, i){ return '<i'+(i===sIdx?' class="on"':'')+'></i>'; }).join('');
+  var bar = $('pbar'), dur = Math.max(5, S.rotasi_detik);
+  bar.style.transition = 'none'; bar.style.width = '0'; void bar.offsetWidth;
+  bar.style.transition = 'width ' + dur + 's linear'; bar.style.width = '100%';
+  clearTimeout(sTimer);
+  sTimer = setTimeout(function(){ buildSlides(); sIdx = (sIdx + 1) % SLIDES.length; renderSlide(); }, dur*1000);
+}
+
+/* ---------- running text ---------- */
+function buildTicker(){
+  var items = (DATA.RunningText || []).filter(function(r){ return isAktif(r.aktif) && r.teks; }).map(function(r){ return esc(r.teks); });
+  if (!items.length) items = [esc(S.nama_masjid + ' — ' + S.alamat)];
+  var one = items.map(function(t){ return '<span>'+t+'</span><span class="sep">✦</span>'; }).join('');
+  var tr = $('track'); tr.innerHTML = one + one;
+  requestAnimationFrame(function(){ tr.style.animationDuration = Math.max(20, (tr.scrollWidth/2) / S.kecepatan_teks) + 's'; });
+}
+
+/* ---------- skala layar ---------- */
+function fit(){
+  var st = $('stage'), s = Math.min(innerWidth/1920, innerHeight/1080);
+  st.style.transform = 'translate(' + (innerWidth - 1920*s)/2 + 'px,' + (innerHeight - 1080*s)/2 + 'px) scale(' + s + ')';
+}
+addEventListener('resize', fit);
+document.addEventListener('dblclick', function(){ try { var el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); } catch(e){} });
+function keepAwake(){ try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function(){}); } catch(e){} }
+document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') keepAwake(); });
+
+/* ---------- start ---------- */
+(function init(){
+  fit(); keepAwake();
+  if (LIVE){
+    $('nama').textContent = 'Memuat data masjid…'; $('alamat').textContent = '';
+    try { var c = JSON.parse(localStorage.getItem(CACHE_KEY)); if (c) apply(c); } catch(e){}
+  } else if (CONFIG.API_URL || SLUG){
+    ERRMSG = !CONFIG.API_URL ? 'API_URL belum diisi di file index.html.' : 'Alamat layar harus memuat ?m=kode-masjid&k=kunci';
+  }
+  loadData();
+  /* Simulasi: tambahkan #simulasi di akhir URL untuk melompat ke 15 detik sebelum adzan berikutnya */
+  if (location.hash === '#simulasi'){ var nx = nextPrayer(new Date()); OFFSET = nx.t - Date.now() - 15000; timesCache = {}; lastDay=''; lastMin=-1; }
+  tick();
+  setTimeout(function(){ tick(); setInterval(tick, 1000); }, 1000 - (Date.now() % 1000));
+  setInterval(loadData, CONFIG.REFRESH_MENIT*60000);
+  /* muat ulang halaman tiap hari pukul 01:00 agar segar */
+  setInterval(function(){ var d = new Date(); if (d.getHours() === 1 && d.getMinutes() === 0 && d.getSeconds() < 2) location.reload(); }, 1000);
+})();
+</script>
+</body>
+</html>
